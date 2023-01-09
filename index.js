@@ -44,7 +44,9 @@ async function executeOrders() {
 
 }
 
-executeOrders();
-setInterval(() => {
-	executeOrders();
-}, 10 * 1000);
+async function poller() {
+	await executeOrders();
+	setTimeout(poller, 5000);
+}
+
+poller();
