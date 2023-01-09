@@ -44,6 +44,7 @@ async function executeOrders() {
 
 }
 
+executeOrders();
 setInterval(() => {
 	executeOrders();
 }, 10 * 1000);
