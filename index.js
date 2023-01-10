@@ -6,7 +6,9 @@ import { ethers } from 'ethers'
 const ABIS = {
 	Trade: [
 		`function executeOrders()`,
-		`function getExecutableOrderIds() public view returns (uint256[])`
+		`function getExecutableOrderIds() public view returns (uint256[])`,
+		`function liquidateUsers()`,
+		`function getLiquidatableUsers() public view returns (address[])`
 	]
 };
 
@@ -44,8 +46,37 @@ async function executeOrders() {
 
 }
 
+async function liquidateUsers() {
+
+	console.log('checking users to liquidate...');
+
+	const contract = await getContract();
+
+	// Check for if there are executable orders
+	const liquidatableUsers = await contract.getLiquidatableUsers();
+
+	console.log('liquidatableUsers', liquidatableUsers);
+
+	if (liquidatableUsers && liquidatableUsers.length > 0) {
+
+		const tx = await contract.liquidateUsers();
+
+		const receipt = await tx.wait();
+
+		console.log('receipt', receipt);
+
+		// receipt.logs contains all events emitted by this tx, including errors
+		if (receipt && receipt.status == 1) {
+			console.log('liquidated users', liquidatableUsers);
+		}
+
+	}
+
+}
+
 async function poller() {
 	await executeOrders();
+	await liquidateUsers();
 	setTimeout(poller, 5000);
 }
 
